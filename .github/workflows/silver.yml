@@ -27,9 +27,9 @@ jobs:
         env:
           SILVER_TELEGRAM_BOT_TOKEN: ${{ secrets.SILVER_TELEGRAM_BOT_TOKEN }}
           SILVER_TELEGRAM_CHAT_ID: ${{ secrets.SILVER_TELEGRAM_CHAT_ID }}
-          # Dùng 1 trong 2: GIST_TOKEN hoặc GITHUB_TOKEN_GIST (code đã hỗ trợ cả 2)
+          # Dùng 1 trong 2: GIST_TOKEN hoặc TOKEN_GIST (code đã hỗ trợ cả 2)
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
-          GITHUB_TOKEN_GIST: ${{ secrets.GITHUB_TOKEN_GIST }}
+          TOKEN_GIST: ${{ secrets.TOKEN_GIST }}
           GIST_ID: ${{ secrets.GIST_ID }}
         run: |
-          python silver_prj.py
+          python silver_bot.py
