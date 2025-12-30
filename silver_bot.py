@@ -277,8 +277,9 @@ def main() -> None:
     elif mode == "notify":
         cmd_notify()
     else:
-        raise SystemExit("Usage: python silver_prj.py compare|notify")
+        raise SystemExit("Usage: python silver_bot.py compare|notify")
 
 
 if __name__ == "__main__":
     main()
+
