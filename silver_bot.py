@@ -191,7 +191,7 @@ def save_last_data_to_file(text: str, path: str = LAST_DATA_FILE) -> None:
 # -----------------------------
 def _get_gist_token() -> Optional[str]:
     # hỗ trợ cả 2 tên secret bạn có thể đang dùng
-    return (os.getenv("GIST_TOKEN") or os.getenv("GITHUB_TOKEN_GIST") or "").strip() or None
+    return (os.getenv("GIST_TOKEN") or os.getenv("TOKEN_GIST") or "").strip() or None
 
 
 def load_last_data_from_gist(token: str, gist_id: str) -> str:
@@ -374,4 +374,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+
     main()
