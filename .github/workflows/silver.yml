@@ -2,7 +2,7 @@ name: Run silver price monitor
 
 on:
   schedule:
-    - cron: "*/10 * * * *"   # mỗi 10 phút (UTC)
+    - cron: "*/10 * * * *"
   workflow_dispatch:
 
 jobs:
@@ -17,20 +17,48 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: "pip"
 
-      - name: Install dependencies
+      # Cache browser binaries của Playwright (giảm rất nhiều thời gian nếu phải chụp)
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-chromium-v1
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: Install light deps (compare only)
         run: |
           pip install --upgrade pip
-          pip install requests playwright
-          python -m playwright install --with-deps chromium
+          pip install requests beautifulsoup4 lxml
 
-      - name: Run silver price monitor
+      - name: Compare snapshot (text)
+        id: compare
         env:
-          SILVER_TELEGRAM_BOT_TOKEN: ${{ secrets.SILVER_TELEGRAM_BOT_TOKEN }}
-          SILVER_TELEGRAM_CHAT_ID: ${{ secrets.SILVER_TELEGRAM_CHAT_ID }}
-          # Dùng 1 trong 2: GIST_TOKEN hoặc TOKEN_GIST (code đã hỗ trợ cả 2)
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
           TOKEN_GIST: ${{ secrets.TOKEN_GIST }}
           GIST_ID: ${{ secrets.GIST_ID }}
         run: |
-          python silver_bot.py
+          python silver_prj.py compare
+
+      # Chỉ khi changed=true mới cài playwright + browser và gửi ảnh
+      - name: Install playwright (only if changed)
+        if: steps.compare.outputs.changed == 'true'
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
+        run: |
+          pip install playwright
+          python -m playwright install chromium
+
+      - name: Notify (screenshot + telegram + update gist)
+        if: steps.compare.outputs.changed == 'true'
+        env:
+          SILVER_TELEGRAM_BOT_TOKEN: ${{ secrets.SILVER_TELEGRAM_BOT_TOKEN }}
+          SILVER_TELEGRAM_CHAT_ID: ${{ secrets.SILVER_TELEGRAM_CHAT_ID }}
+          GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
+          TOKEN_GIST: ${{ secrets.TOKEN_GIST }}
+          GIST_ID: ${{ secrets.GIST_ID }}
+          PLAYWRIGHT_BROWSERS_PATH: ~/.cache/ms-playwright
+        run: |
+          python silver_bot.py notify
