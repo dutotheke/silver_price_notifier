@@ -40,7 +40,7 @@ jobs:
           TOKEN_GIST: ${{ secrets.TOKEN_GIST }}
           GIST_ID: ${{ secrets.GIST_ID }}
         run: |
-          python silver_prj.py compare
+          python silver_bot.py compare
 
       # Chỉ khi changed=true mới cài playwright + browser và gửi ảnh
       - name: Install playwright (only if changed)
